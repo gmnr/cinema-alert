@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 # cinema-alert.py
-# Created by Guido Minieri
+# Created by mini-gui
 # Date -June 2017
 
 # A nifty tool to get updates on the O.V. showtimes @ Uci Cinema Bicocca in
@@ -10,20 +10,51 @@
 # The program is to be run with a cronjob on the raspberri pi
 
 
-# libraries import
-import datetime
+# Import libraries
 import bs4
 import smtplib
 import requests
+import time
 
 
-'''
-1. Navigate to the Cinema site
-2. Download the page with BS4
-3. Select today's date with the div id = movie_ddmmyy
-4. Iterate through a list of nested html elements
-    a. get name from span class = movie_name
-    b. get list of showtimes from ul class = showtime__movie__shows
-5. Get only the names that start with "(O.V.)"
-6. Store results in the email body to be sent after a while
-'''
+# the webpage with the showtimes
+url = "https://www.ucicinemas.it/cinema/lombardia/milano/uci-cinemas-bicocca-milano/"
+
+# today's date in the correct format
+today = time.strftime('%d%m%y')
+
+# create an empty dictionary that will contain the movie title
+uci_movies = {}
+
+# downloading the page
+res = requests.get(url)
+try:
+    res.raise_for_status()
+except Exception as exc:
+    print('There was a problem'.format(exc))  # to be written in the log eventually
+uci_page = res.content
+
+# saving the BS4 object
+soup = bs4.BeautifulSoup(uci_page)
+
+# format of the text div class = showtimes_movies id = movie_ddmmyy
+showtimes = soup.find_all(id = "movie_{}".format(today))
+
+raw_text = ''
+
+for movie in showtimes:
+    raw_text += movie.get_text()
+
+print(raw_text)
+# Email Settings
+# fromaddr = 'user_me@gmail.com'
+# toaddrs  = 'user_you@gmail.com'
+# msg = 'Cinema Update: {}'.format(today)
+# username = 'user_me@gmail.com'
+# password = 'pwd'
+# server = smtplib.SMTP('smtp.gmail.com:587')
+# server.starttls()
+# server.login(username,password)
+# server.sendmail(fromaddr, toaddrs, msg)
+# server.quit()
+
