@@ -12,7 +12,7 @@
 
 # Import libraries
 import bs4
-import smtplib
+import yagmail
 import requests
 import time
 
@@ -38,23 +38,14 @@ uci_page = res.content
 soup = bs4.BeautifulSoup(uci_page)
 
 # format of the text div class = showtimes_movies id = movie_ddmmyy
-showtimes = soup.find_all(id = "movie_{}".format(today))
+showtimes = soup.find_all(id="movie_{}".format(today))
 
 raw_text = ''
 
 for movie in showtimes:
     raw_text += movie.get_text()
 
-print(raw_text)
-# Email Settings
-# fromaddr = 'user_me@gmail.com'
-# toaddrs  = 'user_you@gmail.com'
-# msg = 'Cinema Update: {}'.format(today)
-# username = 'user_me@gmail.com'
-# password = 'pwd'
-# server = smtplib.SMTP('smtp.gmail.com:587')
-# server.starttls()
-# server.login(username,password)
-# server.sendmail(fromaddr, toaddrs, msg)
-# server.quit()
 
+# yagmail Settings
+yag = yagmail.SMTP()
+yag.send('your_username@gmail.com', 'Cinema Update: {}'.format(today), raw_text)
